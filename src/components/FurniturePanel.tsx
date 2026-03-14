@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { FURNITURE_CATALOG, ROOM_PRESETS, DOOR_PRESETS, WINDOW_PRESETS, PLOT_PRESETS } from '@/types/editor';
+import { FURNITURE_CATALOG, ROOM_PRESETS, AREA_PRESETS, DOOR_PRESETS, WINDOW_PRESETS, PLOT_PRESETS } from '@/types/editor';
 import { Button } from '@/components/ui/button';
-import { Sofa, BedDouble, UtensilsCrossed, Bath, Briefcase, LayoutGrid, ChevronDown, ChevronRight, RotateCw, Trash2, DoorOpen, Plus, Sparkles, Car } from 'lucide-react';
+import {
+  Sofa, BedDouble, UtensilsCrossed, Bath, Briefcase, LayoutGrid,
+  ChevronDown, ChevronRight, RotateCw, Trash2, DoorOpen, Plus, Sparkles, Car,
+  Layers, Workflow,
+} from 'lucide-react';
 
 interface Props {
   onAddFurniture: (type: string, label: string, width: number, height: number) => void;
-  onAddRoom: (name: string, width: number, height: number, color: string) => void;
+  onAddRoom: (name: string, width: number, height: number, color: string, roomType?: string) => void;
   onAddDoor: (label: string, width: number, height: number) => void;
   onAddWindow: (label: string, width: number, height: number) => void;
   onRotateSelected: () => void;
@@ -19,40 +23,76 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
   Bathroom: Bath, Office: Briefcase, Exterior: Car,
 };
 
+// Group furniture catalog: find items with parentType (variants) vs standalone
+const getCategories = () => {
+  const cats = [...new Set(FURNITURE_CATALOG.map(f => f.category))];
+  return cats;
+};
+
+const getCategoryItems = (cat: string) => {
+  const items = FURNITURE_CATALOG.filter(f => f.category === cat);
+  // Group by parentType; standalone items have no parentType
+  const grouped: { label: string; type: string; width: number; height: number; variants?: typeof items }[] = [];
+  const seen = new Set<string>();
+
+  items.forEach(item => {
+    if (item.parentType) {
+      if (!seen.has(item.parentType)) {
+        seen.add(item.parentType);
+        const variants = items.filter(i => i.parentType === item.parentType);
+        grouped.push({ label: capitalize(item.parentType.replace('-', ' ')), type: item.parentType, width: variants[0].width, height: variants[0].height, variants });
+      }
+    } else {
+      if (!seen.has(item.type)) {
+        seen.add(item.type);
+        grouped.push({ label: item.label, type: item.type, width: item.width, height: item.height });
+      }
+    }
+  });
+  return grouped;
+};
+
+function capitalize(str: string) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
 export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, onAddWindow, onRotateSelected, onDeleteSelected, hasSelection, onGeneratePlotLayout }: Props) {
   const [expandedCat, setExpandedCat] = useState<string>('Living');
-  const [activeTab, setActiveTab] = useState<'rooms' | 'furniture' | 'doors' | 'windows'>('rooms');
+  const [expandedParent, setExpandedParent] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'rooms' | 'areas' | 'doors' | 'windows' | 'furniture'>('rooms');
   const [customRoomName, setCustomRoomName] = useState('Custom Room');
   const [customRoomW, setCustomRoomW] = useState('4.0');
   const [customRoomH, setCustomRoomH] = useState('3.5');
   const [showCustomRoom, setShowCustomRoom] = useState(false);
   const [showPlots, setShowPlots] = useState(false);
 
-  const categories = [...new Set(FURNITURE_CATALOG.map(f => f.category))];
+  const categories = getCategories();
 
   const addCustomRoom = () => {
     const w = Math.round((parseFloat(customRoomW) / 1.5) * 50);
     const h = Math.round((parseFloat(customRoomH) / 1.5) * 50);
     if (isNaN(w) || isNaN(h) || w < 30 || h < 30) return;
-    onAddRoom(customRoomName || 'Custom Room', w, h, 'hsl(30 15% 88%)');
+    onAddRoom(customRoomName || 'Custom Room', w, h, 'hsl(30 15% 88%)', 'room');
     setShowCustomRoom(false);
   };
+
+  const TABS = [
+    { key: 'rooms', icon: LayoutGrid, label: 'Rooms' },
+    { key: 'areas', icon: Layers, label: 'Areas' },
+    { key: 'doors', icon: DoorOpen, label: 'Doors' },
+    { key: 'windows', icon: Workflow, label: 'Windows' },
+    { key: 'furniture', icon: Sofa, label: 'Furniture' },
+  ] as const;
 
   return (
     <div className="w-72 bg-card border-r border-border/50 flex flex-col h-full overflow-hidden">
       {/* Tabs */}
-      <div className="flex border-b border-border/50">
-        {(['rooms', 'doors', 'windows', 'furniture'] as const).map(tab => {
-          const icons = { rooms: LayoutGrid, doors: DoorOpen, windows: LayoutGrid, furniture: Sofa };
-          const Icon = icons[tab];
-          return (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-3 text-xs font-sans font-medium capitalize flex flex-col items-center gap-1 transition-colors ${activeTab === tab ? 'text-secondary border-b-2 border-secondary bg-secondary/5' : 'text-muted-foreground hover:text-foreground'}`}>
-              <Icon className="w-4 h-4" />
-              {tab}
-            </button>
-          );
-        })}
+      <div className="grid grid-cols-5 border-b border-border/50">
+        {TABS.map(({ key, icon: Icon, label }) => (
+          <button key={key} onClick={() => setActiveTab(key as typeof activeTab)}
+            className={`py-2.5 text-xs font-sans font-medium flex flex-col items-center gap-1 transition-colors ${activeTab === key ? 'text-secondary border-b-2 border-secondary bg-secondary/5' : 'text-muted-foreground hover:text-foreground'}`}>
+            <Icon className="w-3.5 h-3.5" />
+            <span className="text-[10px]">{label}</span>
+          </button>
+        ))}
       </div>
 
       {/* Selection controls */}
@@ -71,6 +111,8 @@ export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, o
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
+
+        {/* ── ROOMS ── */}
         {activeTab === 'rooms' && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground font-sans px-1">Click to add a room to the canvas</p>
@@ -95,7 +137,7 @@ export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, o
 
             {/* Room Presets */}
             {ROOM_PRESETS.map(preset => (
-              <button key={preset.name} onClick={() => onAddRoom(preset.name, preset.width, preset.height, preset.color)}
+              <button key={preset.name} onClick={() => onAddRoom(preset.name, preset.width, preset.height, preset.color, preset.roomType)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors group">
                 <div className="w-8 h-8 rounded-md flex items-center justify-center" style={{ backgroundColor: preset.color }}>
                   <LayoutGrid className="w-4 h-4 text-muted-foreground" />
@@ -140,6 +182,26 @@ export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, o
           </div>
         )}
 
+        {/* ── AREAS ── */}
+        {activeTab === 'areas' && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground font-sans px-1">Add hallways, open areas, staircases and more</p>
+            {AREA_PRESETS.map(preset => (
+              <button key={preset.name} onClick={() => onAddRoom(preset.name, preset.width, preset.height, preset.color, preset.roomType)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="w-8 h-8 rounded-md flex items-center justify-center border border-border/50" style={{ backgroundColor: preset.color }}>
+                  <Layers className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="text-left">
+                  <span className="text-sm font-sans font-medium text-foreground block">{preset.name}</span>
+                  <span className="text-xs text-muted-foreground font-sans capitalize">{preset.roomType.replace('-', ' ')} · {(preset.width / 50 * 1.5).toFixed(1)}m × {(preset.height / 50 * 1.5).toFixed(1)}m</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* ── DOORS ── */}
         {activeTab === 'doors' && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground font-sans px-1">Click to add a door to the canvas</p>
@@ -158,6 +220,7 @@ export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, o
           </div>
         )}
 
+        {/* ── WINDOWS ── */}
         {activeTab === 'windows' && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground font-sans px-1">Click to add a window to the canvas</p>
@@ -176,12 +239,13 @@ export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, o
           </div>
         )}
 
+        {/* ── FURNITURE ── */}
         {activeTab === 'furniture' && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground font-sans px-1">Click to add furniture to the canvas</p>
             {categories.map(cat => {
               const Icon = categoryIcons[cat] || Sofa;
-              const items = FURNITURE_CATALOG.filter(f => f.category === cat);
+              const groupedItems = getCategoryItems(cat);
               const isExpanded = expandedCat === cat;
               return (
                 <div key={cat}>
@@ -190,16 +254,44 @@ export default function FurniturePanel({ onAddFurniture, onAddRoom, onAddDoor, o
                     {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                     <Icon className="w-4 h-4 text-secondary" />
                     {cat}
-                    <span className="ml-auto text-xs text-muted-foreground">{items.length}</span>
+                    <span className="ml-auto text-xs text-muted-foreground">{groupedItems.length}</span>
                   </button>
                   {isExpanded && (
                     <div className="pl-6 space-y-1">
-                      {items.map(item => (
-                        <button key={item.type} onClick={() => onAddFurniture(item.type, item.label, item.width, item.height)}
-                          className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors text-sm font-sans">
-                          <span className="text-foreground">{item.label}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{(item.width / 50 * 1.5).toFixed(1)}×{(item.height / 50 * 1.5).toFixed(1)}m</span>
-                        </button>
+                      {groupedItems.map(item => (
+                        <div key={item.type}>
+                          {item.variants ? (
+                            // Grouped item with variants
+                            <div>
+                              <button onClick={() => setExpandedParent(expandedParent === item.type ? '' : item.type)}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors text-sm font-sans flex items-center justify-between">
+                                <span className="text-foreground font-medium">{item.label}</span>
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  {item.variants.length} variants
+                                  {expandedParent === item.type ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                </span>
+                              </button>
+                              {expandedParent === item.type && (
+                                <div className="pl-4 space-y-0.5 pb-1">
+                                  {item.variants.map(v => (
+                                    <button key={v.type} onClick={() => onAddFurniture(v.type, v.label, v.width, v.height)}
+                                      className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-secondary/10 transition-colors text-sm font-sans flex items-center justify-between group">
+                                      <span className="text-secondary/80 group-hover:text-secondary">↳ {v.variant}</span>
+                                      <span className="text-xs text-muted-foreground">{(v.width / 50 * 1.5).toFixed(1)}×{(v.height / 50 * 1.5).toFixed(1)}m</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            // Standalone item
+                            <button onClick={() => onAddFurniture(item.type, item.label, item.width, item.height)}
+                              className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors text-sm font-sans">
+                              <span className="text-foreground">{item.label}</span>
+                              <span className="text-xs text-muted-foreground ml-2">{(item.width / 50 * 1.5).toFixed(1)}×{(item.height / 50 * 1.5).toFixed(1)}m</span>
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}

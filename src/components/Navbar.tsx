@@ -1,7 +1,8 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Home, FolderOpen, PenTool, Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, FolderOpen, PenTool, Menu, X, LogIn, LogOut, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
@@ -11,7 +12,11 @@ const navItems = [
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleLogout = () => { logout(); navigate('/'); setMobileOpen(false); };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -27,11 +32,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-1">
           {navItems.map(({ path, label, icon: Icon }) => (
             <Link key={path} to={path}>
-              <Button
-                variant={location.pathname === path ? 'default' : 'ghost'}
-                size="sm"
-                className="gap-2 font-sans"
-              >
+              <Button variant={location.pathname === path ? 'default' : 'ghost'} size="sm" className="gap-2 font-sans">
                 <Icon className="w-4 h-4" />
                 {label}
               </Button>
@@ -39,13 +40,36 @@ export default function Navbar() {
           ))}
         </div>
 
+        {/* Auth area */}
+        <div className="hidden md:flex items-center gap-2">
+          {user ? (
+            <>
+              <span className="text-sm font-sans text-muted-foreground flex items-center gap-1.5">
+                <UserCircle className="w-4 h-4" />
+                {user.name}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-1.5 font-sans text-xs">
+                <LogOut className="w-3.5 h-3.5" /> Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="gap-1.5 font-sans text-xs">
+                  <LogIn className="w-3.5 h-3.5" /> Sign In
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm" className="gradient-accent text-accent-foreground border-0 font-sans text-xs">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
+
         {/* Mobile toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
       </div>
@@ -55,15 +79,37 @@ export default function Navbar() {
         <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-md px-6 py-4 space-y-2">
           {navItems.map(({ path, label, icon: Icon }) => (
             <Link key={path} to={path} onClick={() => setMobileOpen(false)}>
-              <Button
-                variant={location.pathname === path ? 'default' : 'ghost'}
-                className="w-full justify-start gap-2 font-sans"
-              >
+              <Button variant={location.pathname === path ? 'default' : 'ghost'} className="w-full justify-start gap-2 font-sans">
                 <Icon className="w-4 h-4" />
                 {label}
               </Button>
             </Link>
           ))}
+          <div className="pt-2 border-t border-border/50">
+            {user ? (
+              <>
+                <p className="text-sm font-sans text-muted-foreground px-3 py-1.5 flex items-center gap-1.5">
+                  <UserCircle className="w-4 h-4" /> {user.name}
+                </p>
+                <Button variant="outline" className="w-full justify-start gap-2 font-sans" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start gap-2 font-sans">
+                    <LogIn className="w-4 h-4" /> Sign In
+                  </Button>
+                </Link>
+                <Link to="/signup" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full justify-start gap-2 gradient-accent text-accent-foreground border-0 font-sans">
+                    <UserCircle className="w-4 h-4" /> Create Account
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>
