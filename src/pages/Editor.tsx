@@ -14,7 +14,7 @@ import ImageUploadModal from '@/components/ImageUploadModal';
 import SpaceScanModal from '@/components/SpaceScanModal';
 import ExportTools from '@/components/ExportTools';
 import AIChatWidget from '@/components/AIChatWidget';
-import type { Room, FurnitureItem, DoorItem, WindowItem, EditorTool, ProjectData } from '@/types/editor';
+import type { Room, FurnitureItem, DoorItem, WindowItem, EditorTool, ProjectData, PlotLayout } from '@/types/editor';
 import { PLOT_PRESETS } from '@/types/editor';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -217,6 +217,30 @@ export default function EditorPage() {
         { id: `r-${ts}-h`, x: m + Math.round(W * 0.62), y: m + Math.round(H * 0.42), width: Math.round(W * 0.36), height: Math.round(H * 0.14), name: 'Hallway', color: 'hsl(210 15% 88%)', roomType: 'hallway' },
         { id: `r-${ts}-4`, x: m + Math.round(W * 0.62), y: m + Math.round(H * 0.58), width: Math.round(W * 0.36), height: Math.round(H * 0.28), name: 'Bathroom', color: 'hsl(30 10% 83%)', roomType: 'room' },
       );
+      // Hallway
+      layout.furniture.push(
+        { id: `furn-${ts}-h1`, type: 'hallway', label: 'Hallway', x: m + Math.round(plotWPx * 0.4), y: m + Math.round(plotHPx * 0.42), width: Math.round(plotWPx * 0.2), height: Math.round(plotHPx * 0.12), rotation: 0 },
+      );
+      // Staircase
+      layout.furniture.push(
+        { id: `furn-${ts}-s1`, type: 'staircase', label: 'Staircase', x: plotWPx - 60, y: m + Math.round(plotHPx * 0.52), width: 50, height: 80, rotation: 0 },
+      );
+      // Main door
+      layout.doors.push(
+        { id: `door-${ts}-1`, x: m + Math.round(plotWPx * 0.25), y: m + plotHPx - 12, width: 40, height: 8, rotation: 0, wallSide: 'bottom' },
+      );
+      // Windows
+      layout.windows.push(
+        { id: `win-${ts}-1`, x: m, y: m + Math.round(plotHPx * 0.2), width: 6, height: 40, rotation: 0 },
+        { id: `win-${ts}-2`, x: m + plotWPx - 8, y: m + Math.round(plotHPx * 0.15), width: 6, height: 35, rotation: 0 },
+      );
+      // Basic furniture
+      layout.furniture.push(
+        { id: `furn-${ts}-1`, type: 'sofa-2-seater', label: '2-Seater Sofa', x: m + 10, y: m + 15, width: 75, height: 40, rotation: 0 },
+        { id: `furn-${ts}-2`, type: 'bed-double', label: 'Double Bed', x: m + Math.round(plotWPx * 0.6), y: m + 15, width: 80, height: 100, rotation: 0 },
+        { id: `furn-${ts}-3`, type: 'kitchen-counter', label: 'Counter', x: m + 10, y: m + Math.round(plotHPx * 0.55), width: 80, height: 25, rotation: 0 },
+      );
+
     } else if (plot.sqft <= 1125) {
       // 5 Marla — 2 rooms + kitchen + hallway
       newRooms.push(
@@ -227,6 +251,65 @@ export default function EditorPage() {
         { id: `r-${ts}-4`, x: m + Math.round(W * 0.42), y: m + Math.round(H * 0.4), width: Math.round(W * 0.56), height: Math.round(H * 0.26), name: 'Bedroom 2', color: 'hsl(30 15% 89%)', roomType: 'room' },
         { id: `r-${ts}-5`, x: m, y: m + Math.round(H * 0.8), width: Math.round(W * 0.45), height: Math.round(H * 0.18), name: 'Bathroom', color: 'hsl(30 10% 83%)', roomType: 'room' },
       );
+      // Hallway + open area
+      layout.furniture.push(
+        { id: `furn-${ts}-h1`, type: 'hallway', label: 'Hallway', x: m, y: m + Math.round(plotHPx * 0.42), width: plotWPx - 2 * m, height: Math.round(plotHPx * 0.11), rotation: 0 },
+        { id: `furn-${ts}-oa`, type: 'open-area', label: 'Open Area', x: m + Math.round(plotWPx * 0.3), y: m + Math.round(plotHPx * 0.15), width: Math.round(plotWPx * 0.22), height: Math.round(plotHPx * 0.2), rotation: 0 },
+      );
+      // Staircase
+      layout.furniture.push(
+        { id: `furn-${ts}-s1`, type: 'staircase', label: 'Staircase', x: plotWPx - 60, y: m + Math.round(plotHPx * 0.42), width: 50, height: 80, rotation: 0 },
+      );
+      // Doors
+      layout.doors.push(
+        { id: `door-${ts}-1`, x: m + Math.round(plotWPx * 0.25), y: m + plotHPx - 12, width: 50, height: 8, rotation: 0, wallSide: 'bottom' },
+        { id: `door-${ts}-2`, x: m + Math.round(plotWPx * 0.2), y: m + Math.round(plotHPx * 0.4) - 4, width: 40, height: 8, rotation: 0, wallSide: 'bottom' },
+        { id: `door-${ts}-3`, x: m + Math.round(plotWPx * 0.6), y: m + Math.round(plotHPx * 0.45) - 4, width: 40, height: 8, rotation: 0, wallSide: 'bottom' },
+      );
+      // Windows
+      layout.windows.push(
+        { id: `win-${ts}-1`, x: m, y: m + 30, width: 6, height: 40, rotation: 0 },
+        { id: `win-${ts}-2`, x: m + plotWPx - 8, y: m + 30, width: 6, height: 40, rotation: 0 },
+        { id: `win-${ts}-3`, x: m + Math.round(plotWPx * 0.3), y: m + plotHPx - 8, width: 40, height: 6, rotation: 0 },
+      );
+      // Furniture
+      layout.furniture.push(
+        { id: `furn-${ts}-1`, type: 'sofa-3-seater', label: '3-Seater Sofa', x: m + 10, y: m + 20, width: 110, height: 45, rotation: 0 },
+        { id: `furn-${ts}-2`, type: 'bed-double', label: 'Double Bed', x: m + Math.round(plotWPx * 0.6), y: m + 15, width: 80, height: 100, rotation: 0 },
+        { id: `furn-${ts}-3`, type: 'bed-single', label: 'Single Bed', x: m + 15, y: m + Math.round(plotHPx * 0.6), width: 50, height: 100, rotation: 0 },
+      );
+
+    } else if (plot.sqft <= 1575) {
+      // 7 Marla: 3 bedrooms
+      layout.rooms.push(
+        { id: `room-${ts}-1`, x: m, y: m, width: Math.round(plotWPx * 0.5), height: Math.round(plotHPx * 0.35), name: 'Living Room', color: 'hsl(30 20% 92%)' },
+        { id: `room-${ts}-2`, x: m + Math.round(plotWPx * 0.52), y: m, width: Math.round(plotWPx * 0.46), height: Math.round(plotHPx * 0.35), name: 'Bedroom 1', color: 'hsl(30 15% 89%)' },
+        { id: `room-${ts}-3`, x: m, y: m + Math.round(plotHPx * 0.52), width: plotWPx - 2 * m, height: Math.round(plotHPx * 0.46), name: 'Bedroom 2', color: 'hsl(30 15% 89%)' },
+      );
+      // Hallway
+      layout.furniture.push(
+        { id: `furn-${ts}-h1`, type: 'hallway', label: 'Hallway', x: m, y: m + Math.round(plotHPx * 0.37), width: plotWPx - 2 * m, height: Math.round(plotHPx * 0.13), rotation: 0 },
+        { id: `furn-${ts}-s1`, type: 'staircase', label: 'Staircase', x: plotWPx - 60, y: m + Math.round(plotHPx * 0.37), width: 50, height: Math.round(plotHPx * 0.13), rotation: 0 },
+      );
+      // Doors
+      layout.doors.push(
+        { id: `door-${ts}-1`, x: m + Math.round(plotWPx * 0.3), y: m + plotHPx - 12, width: 50, height: 8, rotation: 0, wallSide: 'bottom' },
+        { id: `door-${ts}-2`, x: m + Math.round(plotWPx * 0.2), y: m + Math.round(plotHPx * 0.35) - 4, width: 40, height: 8, rotation: 0, wallSide: 'bottom' },
+        { id: `door-${ts}-3`, x: m + Math.round(plotWPx * 0.6), y: m + Math.round(plotHPx * 0.35) - 4, width: 40, height: 8, rotation: 0, wallSide: 'bottom' },
+      );
+      // Windows
+      layout.windows.push(
+        { id: `win-${ts}-1`, x: m, y: m + 30, width: 6, height: 50, rotation: 0 },
+        { id: `win-${ts}-2`, x: m + plotWPx - 8, y: m + 30, width: 6, height: 50, rotation: 0 },
+        { id: `win-${ts}-3`, x: m + 30, y: m + plotHPx - 8, width: 50, height: 6, rotation: 0 },
+      );
+      // Furniture
+      layout.furniture.push(
+        { id: `furn-${ts}-1`, type: 'sofa-3-seater', label: '3-Seater Sofa', x: m + 10, y: m + 20, width: 110, height: 45, rotation: 0 },
+        { id: `furn-${ts}-2`, type: 'bed-double', label: 'Double Bed', x: m + Math.round(plotWPx * 0.55), y: m + 15, width: 80, height: 100, rotation: 0 },
+        { id: `furn-${ts}-3`, type: 'bed-double', label: 'Double Bed', x: m + 15, y: m + Math.round(plotHPx * 0.57), width: 80, height: 100, rotation: 0 },
+      );
+
     } else {
       // 7 Marla+ — 2–3 rooms, hallway, open area, and for 10M+ add garage + gate
       newRooms.push(

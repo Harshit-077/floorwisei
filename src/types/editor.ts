@@ -97,6 +97,7 @@ export const FURNITURE_CATALOG: FurnitureCatalogItem[] = [
   { type: 'sofa-3', label: 'Sofa (3-Seater)', width: 110, height: 42, category: 'Living', variant: '3-Seater', parentType: 'sofa' },
   { type: 'sofa-l', label: 'Sofa (L-Shape)', width: 130, height: 90, category: 'Living', variant: 'L-Shape', parentType: 'sofa' },
   { type: 'armchair', label: 'Armchair', width: 40, height: 40, category: 'Living' },
+  { type: 'recliner', label: 'Recliner', width: 45, height: 45, category: 'Living' },
   { type: 'coffee-table', label: 'Coffee Table', width: 60, height: 35, category: 'Living' },
   { type: 'tv-unit', label: 'TV Unit', width: 80, height: 25, category: 'Living' },
   { type: 'bookshelf', label: 'Bookshelf', width: 60, height: 20, category: 'Living' },
@@ -106,6 +107,7 @@ export const FURNITURE_CATALOG: FurnitureCatalogItem[] = [
   { type: 'bed-double', label: 'Double Bed', width: 80, height: 100, category: 'Bedroom', variant: 'Double', parentType: 'bed' },
   { type: 'bed-single', label: 'Single Bed', width: 50, height: 100, category: 'Bedroom', variant: 'Single', parentType: 'bed' },
   { type: 'wardrobe', label: 'Wardrobe', width: 60, height: 30, category: 'Bedroom' },
+  { type: 'wardrobe-walk-in', label: 'Walk-in Closet', width: 80, height: 60, category: 'Bedroom' },
   { type: 'nightstand', label: 'Nightstand', width: 25, height: 25, category: 'Bedroom' },
   { type: 'dresser', label: 'Dresser', width: 50, height: 25, category: 'Bedroom' },
   // Dining — Table variants
@@ -121,11 +123,13 @@ export const FURNITURE_CATALOG: FurnitureCatalogItem[] = [
   { type: 'sink', label: 'Sink', width: 30, height: 25, category: 'Kitchen' },
   // Bathroom
   { type: 'bathtub', label: 'Bathtub', width: 80, height: 40, category: 'Bathroom' },
+  { type: 'shower', label: 'Shower Cabin', width: 45, height: 45, category: 'Bathroom' },
   { type: 'toilet', label: 'Toilet', width: 25, height: 30, category: 'Bathroom' },
   { type: 'basin', label: 'Basin', width: 30, height: 20, category: 'Bathroom' },
   { type: 'shower', label: 'Shower', width: 35, height: 35, category: 'Bathroom' },
   // Office
   { type: 'desk', label: 'Desk', width: 70, height: 35, category: 'Office' },
+  { type: 'l-desk', label: 'L-Shape Desk', width: 80, height: 70, category: 'Office' },
   { type: 'office-chair', label: 'Office Chair', width: 28, height: 28, category: 'Office' },
   { type: 'filing-cabinet', label: 'Filing Cabinet', width: 35, height: 25, category: 'Office' },
   // Exterior
@@ -159,3 +163,10 @@ export const PLOT_PRESETS = [
   { label: '10 Marla (2250 sq ft)', sqft: 2250, widthFt: 35, depthFt: 65 },
   { label: '1 Kanal (4500 sq ft)', sqft: 4500, widthFt: 50, depthFt: 90 },
 ] as const;
+
+export interface PlotLayout {
+  rooms: Room[];
+  doors: DoorItem[];
+  windows: WindowItem[];
+  furniture: FurnitureItem[];
+}
