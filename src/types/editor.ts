@@ -67,6 +67,7 @@ export const DOOR_PRESETS = [
   { label: 'Standard Door', width: 40, height: 8 },
   { label: 'Double Door', width: 60, height: 8 },
   { label: 'Sliding Door', width: 50, height: 6 },
+  { label: 'Main Gate', width: 80, height: 10 },
 ] as const;
 
 export const WINDOW_PRESETS = [
@@ -77,29 +78,62 @@ export const WINDOW_PRESETS = [
 ] as const;
 
 export const FURNITURE_CATALOG = [
-  { type: 'sofa', label: 'Sofa', width: 100, height: 45, category: 'Living' },
+  // Living - Sofa variants
+  { type: 'sofa-2-seater', label: '2-Seater Sofa', width: 75, height: 40, category: 'Living' },
+  { type: 'sofa-3-seater', label: '3-Seater Sofa', width: 110, height: 45, category: 'Living' },
+  { type: 'sofa-l-shape', label: 'L-Shape Sofa', width: 120, height: 90, category: 'Living' },
+  { type: 'sofa-sectional', label: 'Sectional Sofa', width: 140, height: 100, category: 'Living' },
   { type: 'armchair', label: 'Armchair', width: 40, height: 40, category: 'Living' },
+  { type: 'recliner', label: 'Recliner', width: 45, height: 45, category: 'Living' },
   { type: 'coffee-table', label: 'Coffee Table', width: 60, height: 35, category: 'Living' },
   { type: 'tv-unit', label: 'TV Unit', width: 80, height: 25, category: 'Living' },
   { type: 'bookshelf', label: 'Bookshelf', width: 60, height: 20, category: 'Living' },
-  { type: 'bed-double', label: 'Double Bed', width: 80, height: 100, category: 'Bedroom' },
+  { type: 'side-table', label: 'Side Table', width: 25, height: 25, category: 'Living' },
+
+  // Bedroom
   { type: 'bed-single', label: 'Single Bed', width: 50, height: 100, category: 'Bedroom' },
+  { type: 'bed-double', label: 'Double Bed', width: 80, height: 100, category: 'Bedroom' },
+  { type: 'bed-king', label: 'King Bed', width: 100, height: 110, category: 'Bedroom' },
   { type: 'wardrobe', label: 'Wardrobe', width: 60, height: 30, category: 'Bedroom' },
+  { type: 'wardrobe-walk-in', label: 'Walk-in Closet', width: 80, height: 60, category: 'Bedroom' },
   { type: 'nightstand', label: 'Nightstand', width: 25, height: 25, category: 'Bedroom' },
   { type: 'dresser', label: 'Dresser', width: 50, height: 25, category: 'Bedroom' },
-  { type: 'dining-table', label: 'Dining Table', width: 80, height: 50, category: 'Dining' },
+  { type: 'vanity', label: 'Vanity Table', width: 45, height: 25, category: 'Bedroom' },
+
+  // Dining
+  { type: 'dining-table-4', label: '4-Seater Table', width: 60, height: 40, category: 'Dining' },
+  { type: 'dining-table-6', label: '6-Seater Table', width: 80, height: 50, category: 'Dining' },
+  { type: 'dining-table-8', label: '8-Seater Table', width: 100, height: 55, category: 'Dining' },
   { type: 'chair', label: 'Chair', width: 22, height: 22, category: 'Dining' },
+
+  // Kitchen
   { type: 'kitchen-counter', label: 'Counter', width: 100, height: 30, category: 'Kitchen' },
+  { type: 'kitchen-island', label: 'Kitchen Island', width: 70, height: 45, category: 'Kitchen' },
   { type: 'stove', label: 'Stove', width: 35, height: 30, category: 'Kitchen' },
   { type: 'fridge', label: 'Fridge', width: 35, height: 35, category: 'Kitchen' },
   { type: 'sink', label: 'Sink', width: 30, height: 25, category: 'Kitchen' },
+  { type: 'dishwasher', label: 'Dishwasher', width: 30, height: 30, category: 'Kitchen' },
+
+  // Bathroom
   { type: 'bathtub', label: 'Bathtub', width: 80, height: 40, category: 'Bathroom' },
+  { type: 'shower', label: 'Shower Cabin', width: 45, height: 45, category: 'Bathroom' },
   { type: 'toilet', label: 'Toilet', width: 25, height: 30, category: 'Bathroom' },
   { type: 'basin', label: 'Basin', width: 30, height: 20, category: 'Bathroom' },
+  { type: 'double-basin', label: 'Double Basin', width: 55, height: 22, category: 'Bathroom' },
+
+  // Office
   { type: 'desk', label: 'Desk', width: 70, height: 35, category: 'Office' },
+  { type: 'l-desk', label: 'L-Shape Desk', width: 80, height: 70, category: 'Office' },
   { type: 'office-chair', label: 'Office Chair', width: 28, height: 28, category: 'Office' },
+  { type: 'filing-cabinet', label: 'Filing Cabinet', width: 20, height: 25, category: 'Office' },
+
+  // Exterior / Structure
   { type: 'car-porch', label: 'Car Porch', width: 150, height: 120, category: 'Exterior' },
   { type: 'staircase', label: 'Staircase', width: 50, height: 100, category: 'Exterior' },
+  { type: 'spiral-staircase', label: 'Spiral Staircase', width: 60, height: 60, category: 'Exterior' },
+  { type: 'hallway', label: 'Hallway', width: 120, height: 40, category: 'Exterior' },
+  { type: 'open-area', label: 'Open Area', width: 100, height: 80, category: 'Exterior' },
+  { type: 'garage', label: 'Garage', width: 160, height: 130, category: 'Exterior' },
 ] as const;
 
 export const ROOM_PRESETS = [
@@ -121,3 +155,10 @@ export const PLOT_PRESETS = [
   { label: '10 Marla (2250 sq ft)', sqft: 2250, widthFt: 35, depthFt: 65 },
   { label: '1 Kanal (4500 sq ft)', sqft: 4500, widthFt: 50, depthFt: 90 },
 ] as const;
+
+export interface PlotLayout {
+  rooms: Room[];
+  doors: DoorItem[];
+  windows: WindowItem[];
+  furniture: FurnitureItem[];
+}

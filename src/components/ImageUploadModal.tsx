@@ -1,20 +1,21 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, X, Image, Loader2, CheckCircle, ZoomIn } from 'lucide-react';
+import { Upload, X, Loader2, CheckCircle, ZoomIn, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { Room } from '@/types/editor';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onImageLoaded: (imageUrl: string) => void;
+  onRoomsDetected: (rooms: Room[]) => void;
 }
 
-export default function ImageUploadModal({ isOpen, onClose, onImageLoaded }: Props) {
+export default function ImageUploadModal({ isOpen, onClose, onRoomsDetected }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
-  const [detectedRooms, setDetectedRooms] = useState<{ name: string; dims: string }[]>([]);
+  const [detectedRooms, setDetectedRooms] = useState<{ name: string; width: number; height: number }[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (file: File) => {
@@ -33,24 +34,37 @@ export default function ImageUploadModal({ isOpen, onClose, onImageLoaded }: Pro
   const analyzeImage = () => {
     if (!preview) return;
     setAnalyzing(true);
+    // Simulated room detection from floor plan image
     setTimeout(() => {
-      setDetectedRooms([
-        { name: 'Living Room', dims: '5.2m × 4.1m' },
-        { name: 'Master Bedroom', dims: '4.0m × 3.5m' },
-        { name: 'Kitchen', dims: '3.8m × 2.9m' },
-        { name: 'Bathroom', dims: '2.4m × 2.0m' },
-        { name: 'Hallway', dims: '4.5m × 1.2m' },
-      ]);
+      const detected = [
+        { name: 'Living Room', width: 250, height: 200 },
+        { name: 'Master Bedroom', width: 200, height: 180 },
+        { name: 'Kitchen', width: 180, height: 140 },
+      ];
+      setDetectedRooms(detected);
       setAnalyzing(false);
       setAnalyzed(true);
     }, 2500);
   };
 
-  const applyToCanvas = () => {
-    if (preview) { onImageLoaded(preview); onClose(); setPreview(null); setAnalyzed(false); setDetectedRooms([]); }
+  const addRoomsToCanvas = () => {
+    const ts = Date.now();
+    const rooms: Room[] = detectedRooms.map((r, i) => ({
+      id: `room-${ts}-${i}`,
+      x: 20 + (i % 2) * (r.width + 20),
+      y: 20 + Math.floor(i / 2) * (r.height + 20),
+      width: r.width,
+      height: r.height,
+      name: r.name,
+      color: ['hsl(30 20% 92%)', 'hsl(30 15% 89%)', 'hsl(30 12% 86%)', 'hsl(30 10% 83%)', 'hsl(30 18% 90%)'][i % 5],
+    }));
+    onRoomsDetected(rooms);
+    handleClose();
   };
 
-  const reset = () => { setPreview(null); setAnalyzed(false); setDetectedRooms([]); };
+  const handleClose = () => {
+    setPreview(null); setAnalyzed(false); setDetectedRooms([]); onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -58,16 +72,16 @@ export default function ImageUploadModal({ isOpen, onClose, onImageLoaded }: Pro
     <AnimatePresence>
       <motion.div className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm flex items-center justify-center p-6"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}>
+        onClick={handleClose}>
         <motion.div className="bg-card rounded-2xl border border-border/50 shadow-2xl w-full max-w-lg overflow-hidden"
           initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
           onClick={e => e.stopPropagation()}>
           <div className="p-6 border-b border-border/50 flex items-center justify-between">
             <div>
               <h2 className="font-display text-xl">Upload Floor Plan</h2>
-              <p className="text-sm text-muted-foreground font-sans">Upload an image and AI will detect rooms & dimensions</p>
+              <p className="text-sm text-muted-foreground font-sans">Upload an image — rooms will be detected and added to the canvas</p>
             </div>
-            <Button size="icon" variant="ghost" onClick={onClose}><X className="w-4 h-4" /></Button>
+            <Button size="icon" variant="ghost" onClick={handleClose}><X className="w-4 h-4" /></Button>
           </div>
 
           <div className="p-6">
@@ -90,14 +104,14 @@ export default function ImageUploadModal({ isOpen, onClose, onImageLoaded }: Pro
                     <div className="absolute inset-0 bg-foreground/30 flex items-center justify-center">
                       <div className="text-center">
                         <Loader2 className="w-8 h-8 animate-spin text-secondary mx-auto mb-2" />
-                        <p className="text-sm font-sans text-card-foreground font-medium">Analyzing floor plan...</p>
+                        <p className="text-sm font-sans text-card-foreground font-medium">Detecting rooms...</p>
                       </div>
                     </div>
                   )}
                   {analyzed && (
-                    <div className="absolute top-3 right-3 bg-success text-success-foreground px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                    <div className="absolute top-3 right-3 bg-emerald-600 text-white px-2.5 py-1 rounded-full flex items-center gap-1.5">
                       <CheckCircle className="w-3.5 h-3.5" />
-                      <span className="text-xs font-sans font-medium">Analysis Complete</span>
+                      <span className="text-xs font-sans font-medium">Rooms Detected</span>
                     </div>
                   )}
                 </div>
@@ -108,22 +122,24 @@ export default function ImageUploadModal({ isOpen, onClose, onImageLoaded }: Pro
                     {detectedRooms.map((room, i) => (
                       <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50">
                         <span className="text-sm font-sans font-medium">{room.name}</span>
-                        <span className="text-xs font-mono text-muted-foreground">{room.dims}</span>
+                        <span className="text-xs font-mono text-muted-foreground">{(room.width / 50 * 1.5).toFixed(1)}m × {(room.height / 50 * 1.5).toFixed(1)}m</span>
                       </div>
                     ))}
                   </div>
                 )}
 
                 <div className="flex gap-3">
-                  <Button variant="outline" onClick={reset} className="font-sans text-sm">Upload Different Image</Button>
+                  <Button variant="outline" onClick={() => { setPreview(null); setAnalyzed(false); setDetectedRooms([]); }} className="font-sans text-sm">
+                    Upload Different Image
+                  </Button>
                   {!analyzed ? (
                     <Button onClick={analyzeImage} disabled={analyzing} className="flex-1 gradient-accent text-accent-foreground border-0 font-sans text-sm gap-2">
                       {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ZoomIn className="w-4 h-4" />}
-                      {analyzing ? 'Analyzing...' : 'Detect Rooms & Dimensions'}
+                      {analyzing ? 'Detecting...' : 'Detect Rooms'}
                     </Button>
                   ) : (
-                    <Button onClick={applyToCanvas} className="flex-1 gradient-accent text-accent-foreground border-0 font-sans text-sm">
-                      <Image className="w-4 h-4 mr-2" /> Apply to Canvas
+                    <Button onClick={addRoomsToCanvas} className="flex-1 gradient-accent text-accent-foreground border-0 font-sans text-sm gap-2">
+                      <Plus className="w-4 h-4" /> Add Rooms to Canvas
                     </Button>
                   )}
                 </div>
