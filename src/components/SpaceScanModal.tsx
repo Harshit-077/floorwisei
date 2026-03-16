@@ -83,9 +83,8 @@ export default function SpaceScanModal({ isOpen, onClose, onRoomsDetected }: Pro
     // Start detection simulation
     setStep('detecting');
     setTimeout(() => {
-      // Heuristically pick 2-4 rooms based on "image complexity"
-      const count = 2 + Math.floor(Math.random() * 3); // 2-4
-      setDetectedRooms(simulateRoomDetection(count));
+      // Detect 1 room — user can add more manually in review step
+      setDetectedRooms(simulateRoomDetection(1));
       setStep('review');
     }, 1800);
   };

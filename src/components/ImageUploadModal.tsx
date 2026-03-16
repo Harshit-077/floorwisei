@@ -119,11 +119,23 @@ export default function ImageUploadModal({ isOpen, onClose, onRoomsDetected }: P
 
                 {analyzed && detectedRooms.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-display">Detected Rooms ({detectedRooms.length})</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-display">Detected Rooms ({detectedRooms.length})</h4>
+                      <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => setDetectedRooms(prev => [...prev, { name: `Room ${prev.length + 1}`, width: 150 + Math.floor(Math.random() * 100), height: 120 + Math.floor(Math.random() * 80) }])}>
+                        <Plus className="w-3 h-3" /> Add Room
+                      </Button>
+                    </div>
                     {detectedRooms.map((room, i) => (
                       <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50">
-                        <span className="text-sm font-sans font-medium">{room.name}</span>
-                        <span className="text-xs font-mono text-muted-foreground">{(room.width / 50 * 1.5).toFixed(1)}m × {(room.height / 50 * 1.5).toFixed(1)}m</span>
+                        <input className="text-sm font-sans font-medium bg-transparent border-none outline-none w-32" value={room.name} onChange={e => setDetectedRooms(prev => prev.map((r, idx) => idx === i ? { ...r, name: e.target.value } : r))} />
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono text-muted-foreground">{(room.width / 50 * 1.5).toFixed(1)}m × {(room.height / 50 * 1.5).toFixed(1)}m</span>
+                          {detectedRooms.length > 1 && (
+                            <button className="text-muted-foreground hover:text-destructive" onClick={() => setDetectedRooms(prev => prev.filter((_, idx) => idx !== i))}>
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
