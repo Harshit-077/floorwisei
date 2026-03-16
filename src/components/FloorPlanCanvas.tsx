@@ -171,14 +171,6 @@ const FloorPlanCanvas = forwardRef<CanvasHandle, Props>(({
 
     const pt = getSVGPoint(clientX, clientY);
 
-    if (drag.mode === 'pan') {
-      const dx = pt.x - drag.startX;
-      const dy = pt.y - drag.startY;
-      setPanX(drag.origPanX - dx / 2);
-      setPanY(drag.origPanY - dy / 2);
-      return;
-    }
-
     if (drag.mode === 'move') {
       const newX = Math.round((pt.x - drag.offsetX) / 10) * 10;
       const newY = Math.round((pt.y - drag.offsetY) / 10) * 10;

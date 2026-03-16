@@ -472,7 +472,7 @@ export default function EditorPage() {
       </div>
 
       {/* Modals */}
-      <ImageUploadModal isOpen={showUpload} onClose={() => setShowUpload(false)} onImageLoaded={setBackgroundImage} />
+      <ImageUploadModal isOpen={showUpload} onClose={() => setShowUpload(false)} onRoomsDetected={handleRoomsDetected} />
       <SpaceScanModal isOpen={showScan} onClose={() => setShowScan(false)} onRoomsDetected={handleRoomsDetected} />
       <ExportTools isOpen={showExport} onClose={() => setShowExport(false)} rooms={rooms} furniture={furniture} doors={doors} windows={windows} onLoadProject={loadProject} />
 
