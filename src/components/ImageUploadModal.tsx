@@ -36,10 +36,11 @@ export default function ImageUploadModal({ isOpen, onClose, onRoomsDetected }: P
     setAnalyzing(true);
     // Simulated room detection from floor plan image
     setTimeout(() => {
+      // Detect 1 room by default — user can add more manually
+      const w = 150 + Math.floor(Math.random() * 150);
+      const h = 120 + Math.floor(Math.random() * 120);
       const detected = [
-        { name: 'Living Room', width: 250, height: 200 },
-        { name: 'Master Bedroom', width: 200, height: 180 },
-        { name: 'Kitchen', width: 180, height: 140 },
+        { name: 'Room 1', width: w, height: h },
       ];
       setDetectedRooms(detected);
       setAnalyzing(false);
