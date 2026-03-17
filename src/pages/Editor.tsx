@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   MousePointer, Square, Trash2, BarChart3, Undo2, Upload, ScanLine, DoorOpen,
-  Menu, X, Save, SquareStack, ZoomIn, ZoomOut, Maximize,
+  Menu, X, Save, SquareStack, ZoomIn, ZoomOut, Maximize, Box,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FloorPlanCanvas, { type CanvasHandle } from '@/components/FloorPlanCanvas';
