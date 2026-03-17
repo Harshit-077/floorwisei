@@ -14,6 +14,8 @@ import ImageUploadModal from '@/components/ImageUploadModal';
 import SpaceScanModal from '@/components/SpaceScanModal';
 import ExportTools from '@/components/ExportTools';
 import AIChatWidget from '@/components/AIChatWidget';
+import { lazy, Suspense } from 'react';
+const FloorPlan3DViewer = lazy(() => import('@/components/FloorPlan3DViewer'));
 import type { Room, FurnitureItem, DoorItem, WindowItem, EditorTool, ProjectData, PlotLayout } from '@/types/editor';
 import { PLOT_PRESETS } from '@/types/editor';
 import { useAuth } from '@/contexts/AuthContext';
