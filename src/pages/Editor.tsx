@@ -363,6 +363,13 @@ export default function EditorPage() {
           </Button>
         </div>
 
+        {/* 3D Toggle */}
+        <Button variant={show3D ? 'default' : 'ghost'} size="sm" onClick={() => setShow3D(!show3D)}
+          className="gap-1.5 font-sans text-xs" title="Toggle 3D View">
+          <Box className="w-4 h-4" />
+          <span className="hidden sm:inline">{show3D ? '2D' : '3D'}</span>
+        </Button>
+
         {backgroundImage && (
           <Button variant="ghost" size="sm" onClick={() => setBackgroundImage(null)} className="font-sans text-xs text-destructive">
             Clear BG
