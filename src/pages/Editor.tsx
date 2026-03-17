@@ -409,20 +409,26 @@ export default function EditorPage() {
           />
         </div>
 
-        {/* Canvas */}
+        {/* Canvas / 3D Viewer */}
         <div className="flex-1 overflow-hidden">
-          <FloorPlanCanvas
-            ref={canvasRef}
-            rooms={rooms} furniture={furniture} doors={doors} windows={windows}
-            selectedId={selectedId} activeTool={activeTool}
-            onSelectItem={setSelectedId}
-            onMoveFurniture={moveFurniture} onMoveRoom={moveRoom}
-            onResizeRoom={resizeRoom} onResizeFurniture={resizeFurniture}
-            onResizeDoor={resizeDoor} onResizeWindow={resizeWindow}
-            onMoveDoor={moveDoor} onMoveWindow={moveWindow}
-            onDeleteItem={deleteItem}
-            backgroundImage={backgroundImage}
-          />
+          {show3D ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading 3D…</div>}>
+              <FloorPlan3DViewer rooms={rooms} furniture={furniture} doors={doors} windows={windows} />
+            </Suspense>
+          ) : (
+            <FloorPlanCanvas
+              ref={canvasRef}
+              rooms={rooms} furniture={furniture} doors={doors} windows={windows}
+              selectedId={selectedId} activeTool={activeTool}
+              onSelectItem={setSelectedId}
+              onMoveFurniture={moveFurniture} onMoveRoom={moveRoom}
+              onResizeRoom={resizeRoom} onResizeFurniture={resizeFurniture}
+              onResizeDoor={resizeDoor} onResizeWindow={resizeWindow}
+              onMoveDoor={moveDoor} onMoveWindow={moveWindow}
+              onDeleteItem={deleteItem}
+              backgroundImage={backgroundImage}
+            />
+          )}
         </div>
 
         {/* Right Panel */}
