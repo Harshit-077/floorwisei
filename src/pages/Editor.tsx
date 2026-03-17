@@ -35,6 +35,7 @@ export default function EditorPage() {
   const canvasRef = useRef<CanvasHandle>(null);
 
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [show3D, setShow3D] = useState(false);
   const [furniture, setFurniture] = useState<FurnitureItem[]>([]);
   const [doors, setDoors] = useState<DoorItem[]>([]);
   const [windows, setWindows] = useState<WindowItem[]>([]);
