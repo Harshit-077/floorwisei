@@ -410,10 +410,14 @@ export default function EditorPage() {
         </div>
 
         {/* Canvas / 3D Viewer */}
-        <div className="flex-1 overflow-hidden">
+        <div className={`flex-1 overflow-hidden relative ${show3D ? 'touch-none' : ''}`}>
           {show3D ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading 3D…</div>}>
               <FloorPlan3DViewer rooms={rooms} furniture={furniture} doors={doors} windows={windows} />
+              {/* 3D mobile controls hint */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card/80 backdrop-blur-sm text-muted-foreground text-xs px-3 py-1.5 rounded-full border border-border/50 pointer-events-none sm:hidden">
+                Drag to rotate · Pinch to zoom · Two fingers to pan
+              </div>
             </Suspense>
           ) : (
             <FloorPlanCanvas
