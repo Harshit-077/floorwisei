@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   MousePointer, Square, Trash2, BarChart3, Undo2, Upload, ScanLine, DoorOpen,
-  Menu, X, Save, SquareStack, ZoomIn, ZoomOut, Maximize,
+  Menu, X, Save, SquareStack, ZoomIn, ZoomOut, Maximize, Box,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FloorPlanCanvas, { type CanvasHandle } from '@/components/FloorPlanCanvas';
@@ -14,6 +14,8 @@ import ImageUploadModal from '@/components/ImageUploadModal';
 import SpaceScanModal from '@/components/SpaceScanModal';
 import ExportTools from '@/components/ExportTools';
 import AIChatWidget from '@/components/AIChatWidget';
+import { lazy, Suspense } from 'react';
+const FloorPlan3DViewer = lazy(() => import('@/components/FloorPlan3DViewer'));
 import type { Room, FurnitureItem, DoorItem, WindowItem, EditorTool, ProjectData, PlotLayout } from '@/types/editor';
 import { PLOT_PRESETS } from '@/types/editor';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,6 +35,7 @@ export default function EditorPage() {
   const canvasRef = useRef<CanvasHandle>(null);
 
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [show3D, setShow3D] = useState(false);
   const [furniture, setFurniture] = useState<FurnitureItem[]>([]);
   const [doors, setDoors] = useState<DoorItem[]>([]);
   const [windows, setWindows] = useState<WindowItem[]>([]);
@@ -360,6 +363,13 @@ export default function EditorPage() {
           </Button>
         </div>
 
+        {/* 3D Toggle */}
+        <Button variant={show3D ? 'default' : 'ghost'} size="sm" onClick={() => setShow3D(!show3D)}
+          className="gap-1.5 font-sans text-xs" title="Toggle 3D View">
+          <Box className="w-4 h-4" />
+          <span className="hidden sm:inline">{show3D ? '2D' : '3D'}</span>
+        </Button>
+
         {backgroundImage && (
           <Button variant="ghost" size="sm" onClick={() => setBackgroundImage(null)} className="font-sans text-xs text-destructive">
             Clear BG
@@ -399,20 +409,26 @@ export default function EditorPage() {
           />
         </div>
 
-        {/* Canvas */}
+        {/* Canvas / 3D Viewer */}
         <div className="flex-1 overflow-hidden">
-          <FloorPlanCanvas
-            ref={canvasRef}
-            rooms={rooms} furniture={furniture} doors={doors} windows={windows}
-            selectedId={selectedId} activeTool={activeTool}
-            onSelectItem={setSelectedId}
-            onMoveFurniture={moveFurniture} onMoveRoom={moveRoom}
-            onResizeRoom={resizeRoom} onResizeFurniture={resizeFurniture}
-            onResizeDoor={resizeDoor} onResizeWindow={resizeWindow}
-            onMoveDoor={moveDoor} onMoveWindow={moveWindow}
-            onDeleteItem={deleteItem}
-            backgroundImage={backgroundImage}
-          />
+          {show3D ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">Loading 3D…</div>}>
+              <FloorPlan3DViewer rooms={rooms} furniture={furniture} doors={doors} windows={windows} />
+            </Suspense>
+          ) : (
+            <FloorPlanCanvas
+              ref={canvasRef}
+              rooms={rooms} furniture={furniture} doors={doors} windows={windows}
+              selectedId={selectedId} activeTool={activeTool}
+              onSelectItem={setSelectedId}
+              onMoveFurniture={moveFurniture} onMoveRoom={moveRoom}
+              onResizeRoom={resizeRoom} onResizeFurniture={resizeFurniture}
+              onResizeDoor={resizeDoor} onResizeWindow={resizeWindow}
+              onMoveDoor={moveDoor} onMoveWindow={moveWindow}
+              onDeleteItem={deleteItem}
+              backgroundImage={backgroundImage}
+            />
+          )}
         </div>
 
         {/* Right Panel */}
